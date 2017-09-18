@@ -21,13 +21,15 @@ public class SwrveIntegration extends Integration<Void> {
   private static final String SWRVE_KEY = "Swrve";
 
   // Swrve needs to be initialized early in order to work correctly.
-  public static Factory createFactory(final Application application, int appId, String apiKey, SwrveConfig swrveConfig) {
+  public static Factory createFactory(
+      final Application application, int appId, String apiKey, SwrveConfig swrveConfig) {
     SwrveSDK.createInstance(application, appId, apiKey, swrveConfig);
 
     return new Factory() {
       @Override
       public Integration<?> create(ValueMap settings, Analytics analytics) {
-        return new SwrveIntegration(analytics, settings);
+        Logger logger = analytics.logger(SWRVE_KEY);
+        return new SwrveIntegration(settings, logger);
       }
 
       @Override
@@ -37,10 +39,10 @@ public class SwrveIntegration extends Integration<Void> {
     };
   }
 
-  final Logger logger;
+  private final Logger logger;
 
-  SwrveIntegration(Analytics analytics, ValueMap settings) {
-    logger = analytics.logger(SWRVE_KEY);
+  SwrveIntegration(ValueMap settings, Logger logger) {
+    this.logger = logger;
   }
 
   @Override
@@ -49,48 +51,54 @@ public class SwrveIntegration extends Integration<Void> {
 
     String userId = identify.userId();
     if (!isNullOrEmpty(userId)) {
-      Map<String, String> attributes = new HashMap<String, String>();
+      Map<String, String> attributes = new HashMap<>();
+
       attributes.put("customer.id", userId);
       SwrveSDK.userUpdate(attributes);
+      logger.verbose("SwrveSDK.userUpdate(%s)", attributes);
     }
 
     Traits traits = identify.traits();
-    Map<String, String> properties = new HashMap<String, String>();
+    Map<String, String> properties = new HashMap<>();
     for (Map.Entry<String, Object> entry : traits.entrySet()) {
       properties.put(entry.getKey(), String.valueOf(entry.getValue()));
     }
     SwrveSDK.userUpdate(properties);
+    logger.verbose("SwrveSDK.userUpdate(%s);", properties);
   }
 
   @Override
   public void track(TrackPayload track) {
     super.track(track);
     SwrveSDK.event(track.event(), track.properties().toStringMap());
+    logger.verbose("SwrveSDK.event(%s, %s)", track.event(), track.properties().toStringMap());
   }
 
   @Override
   public void screen(ScreenPayload screen) {
     String eventName = String.format("screen.%s", screen.event());
     SwrveSDK.event(eventName, screen.properties().toStringMap());
+    logger.verbose("SwrveSDK.event(%s)", screen.properties().toStringMap());
   }
-
-  // alias, reset, group not implemented
 
   @Override
   public void onActivityResumed(Activity activity) {
     super.onActivityResumed(activity);
     SwrveSDK.onResume(activity);
+    logger.verbose("SwrveSDK.onResume(%s)", activity);
   }
 
   @Override
   public void onActivityPaused(Activity activity) {
     super.onActivityPaused(activity);
     SwrveSDK.onPause();
+    logger.verbose("SwrveSDK.onPause();");
   }
 
   @Override
   public void flush() {
     super.flush();
     SwrveSDK.sendQueuedEvents();
+    logger.verbose("SwrveSDK.sendQueuedEvents();");
   }
 }
