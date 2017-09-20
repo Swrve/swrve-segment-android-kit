@@ -3,6 +3,7 @@ package com.segment.analytics.android.integrations.swrve;
 import android.app.Activity;
 import android.app.Application;
 import com.swrve.sdk.config.SwrveConfig;
+import com.swrve.sdk.SwrveHelper;
 import com.swrve.sdk.SwrveSDK;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Traits;
@@ -15,7 +16,6 @@ import com.segment.analytics.integrations.TrackPayload;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.segment.analytics.internal.Utils.isNullOrEmpty;
 
 public class SwrveIntegration extends Integration<Void> {
   private static final String SWRVE_KEY = "Swrve";
@@ -50,7 +50,7 @@ public class SwrveIntegration extends Integration<Void> {
     super.identify(identify);
 
     String userId = identify.userId();
-    if (!isNullOrEmpty(userId)) {
+    if (SwrveHelper.isNotNullOrEmpty(userId)) {
       Map<String, String> attributes = new HashMap<>();
 
       attributes.put("customer.id", userId);
@@ -58,12 +58,7 @@ public class SwrveIntegration extends Integration<Void> {
       logger.verbose("SwrveSDK.userUpdate(%s)", attributes);
     }
 
-    Traits traits = identify.traits();
-    Map<String, String> properties = new HashMap<>();
-    for (Map.Entry<String, Object> entry : traits.entrySet()) {
-      properties.put(entry.getKey(), String.valueOf(entry.getValue()));
-    }
-    SwrveSDK.userUpdate(properties);
+    SwrveSDK.userUpdate(identify.traits().toStringMap());
     logger.verbose("SwrveSDK.userUpdate(%s);", properties);
   }
 
