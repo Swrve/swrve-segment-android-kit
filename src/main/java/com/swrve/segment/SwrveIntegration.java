@@ -1,4 +1,4 @@
-package com.segment.analytics.android.integrations.swrve;
+package com.swrve.segment;
 
 import android.app.Activity;
 import android.app.Application;
@@ -15,7 +15,6 @@ import com.segment.analytics.integrations.ScreenPayload;
 import com.segment.analytics.integrations.TrackPayload;
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class SwrveIntegration extends Integration<Void> {
   private static final String SWRVE_KEY = "Swrve";
@@ -59,7 +58,7 @@ public class SwrveIntegration extends Integration<Void> {
     }
 
     SwrveSDK.userUpdate(identify.traits().toStringMap());
-    logger.verbose("SwrveSDK.userUpdate(%s);", properties);
+    logger.verbose("SwrveSDK.userUpdate(%s);", identify.traits().toStringMap());
   }
 
   @Override
