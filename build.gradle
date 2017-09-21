@@ -6,10 +6,18 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
         classpath 'com.f2prateek.javafmt:javafmt:0.1.6'
+
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
     }
 }
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+group = project.bintrayGroupId
+version = project.bintrayPackageVersion
 
 android {
     compileSdkVersion 25
@@ -23,17 +31,20 @@ android {
 
 repositories {
     mavenCentral()
+    maven {
+        url = 'https://maven.google.com'
+    }
     jcenter{
         url = 'http://dl.bintray.com/swrve-inc/android'
     }
 }
 
 dependencies {
-    compile 'com.swrve.sdk.android:swrve:4.10.1'
+    compile 'com.swrve.sdk.android:swrve:4.+'
 
-    compile 'com.segment.analytics.android:analytics:4.3.0-RC1'
+    compile 'com.segment.analytics.android:analytics:4.+'
 
-    testCompile 'com.segment.analytics.android:analytics-tests:4.3.0-RC1'
+    testCompile 'com.segment.analytics.android:analytics-tests:4.+'
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.3.2'
     testCompile 'org.assertj:assertj-core:1.7.1'
@@ -43,6 +54,61 @@ dependencies {
     testCompile 'org.powermock:powermock-module-junit4-rule:1.6.2'
     testCompile 'org.powermock:powermock-api-mockito:1.6.2'
     testCompile 'org.powermock:powermock-classloading-xstream:1.6.2'
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            name project.bintrayArtifactId
+            description project.bintrayDescription
+            url project.bintrayGithub
+
+            packaging 'aar'
+            groupId project.bintrayGroupId
+            artifactId project.bintrayArtifactId
+            version project.bintrayPackageVersion
+
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+            scm {
+                connection project.bintrayGithub + '.git'
+                url project.bintrayGithub
+
+            }
+            developers {
+                developer {
+                    name project.bintrayAuthor
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    configurations = ['archives']
+    pkg {
+        repo = 'android'
+        name = project.bintrayPackageName
+        userOrg = project.bintrayUserOrg
+        desc = project.description
+        labels = project.bintrayLabels
+        vcsUrl = project.bintrayGithub + '.git'
+        licenses = ['Apache-2.0']
+        issueTrackerUrl = project.bintrayGithub + '/issues'
+
+        version {
+            name = project.bintrayPackageVersion
+            desc = project.bintrayDescription
+            vcsTag = project.bintrayPackageVersion
+        }
+    }
 }
 
 apply plugin: 'com.f2prateek.javafmt'

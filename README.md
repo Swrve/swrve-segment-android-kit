@@ -5,10 +5,26 @@ Swrve integration for [analytics-android](https://github.com/segmentio/analytics
 
 ## Installation
 
+In your top-level project `build.gradle` add:
+
+```
+repositories {
+    jcenter{
+        url = 'http://dl.bintray.com/swrve-inc/android'
+    }
+    maven {
+        url = 'https://maven.google.com'
+    }
+}
+```
+
 To install the Segment-Swrve integration, simply add this line to your gradle file:
 
 ```
-compile 'com.segment.analytics.android.integrations:swrve:+'
+dependencies {
+    compile 'com.segment.analytics.android:analytics:4.0.4'
+    compile 'com.swrve.segment:analytics-android-integration-swrve:1.0.0'
+}
 ```
 
 ## Usage
@@ -17,7 +33,7 @@ After adding the dependency, you must register the integration with our SDK.  To
 
 
 ```
-import com.segment.analytics.android.integrations.swrve.SwrveIntegration;
+import com.swrve.segment.SwrveIntegration;
 ```
 
 And add the following line:
@@ -35,6 +51,18 @@ analytics = new Analytics.Builder(this, "write_key")
                 .build();
 ```
 
+## Install Specific Version of Swrve SDK
+
+By default this integration pulls in the latest vanilla version of the Swrve SDK. If you rather want to use a specific version, simply exclude them from the integration and specify the required versions in your `build.gradle` file directly.
+
+For example, if you wanted to use the Firebase flavored Swrve SDK:
+
+```
+compile('com.swrve.segment:analytics-android-integration-swrve:1.0.0') {
+    exclude group: 'com.swrve.sdk.android', module: 'swrve'
+}
+compile 'com.swrve.sdk.android:swrve-firebase:4.11.2'
+```
 
 License
 -------

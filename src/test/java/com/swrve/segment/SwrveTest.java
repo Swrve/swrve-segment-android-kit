@@ -1,4 +1,4 @@
-package com.segment.analytics.android.integrations.swrve;
+package com.swrve.segment;
 
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Properties;
@@ -41,14 +41,16 @@ public class SwrveTest {
 
   private SwrveIntegration integration;
 
-  @Before public void setUp() {
+  @Before
+  public void setUp() {
     initMocks(this);
     PowerMockito.mockStatic(SwrveSDKBase.class);
 
     integration = new SwrveIntegration(null, Logger.with(VERBOSE));
   }
 
-  @Test public void identify() {
+  @Test
+  public void identify() {
     integration.identify(new IdentifyPayloadBuilder().traits(createTraits("foo")).build());
 
     verifyStatic();
@@ -57,7 +59,8 @@ public class SwrveTest {
     SwrveSDK.userUpdate(attributes);
   }
 
-  @Test public void track() {
+  @Test
+  public void track() {
     Properties properties = new Properties();
     integration.track(new TrackPayloadBuilder().event("foo").properties(properties).build());
 
