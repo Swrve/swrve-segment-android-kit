@@ -72,7 +72,7 @@ public class SwrveIntegration extends Integration<Void> {
   public void screen(ScreenPayload screen) {
     String eventName = String.format("screen.%s", screen.event());
     SwrveSDK.event(eventName, screen.properties().toStringMap());
-    logger.verbose("SwrveSDK.event(%s)", screen.properties().toStringMap());
+    logger.verbose("SwrveSDK.event(%s, %s)", eventName, screen.properties().toStringMap());
   }
 
   @Override

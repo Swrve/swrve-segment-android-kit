@@ -46,9 +46,9 @@ SwrveConfig swrveConfig = new SwrveConfig();
 // To use the EU stack, include this in your config.
 // swrveConfig.setSelectedStack(SwrveStack.EU);
 
-analytics = new Analytics.Builder(this, "write_key")
-                .use(SwrveIntegration.createFactory(application, appId, apiKey, swrveConfig)
-                .build();
+Analytics analytics = new Analytics.Builder(this, "write_key")
+                          .use(SwrveIntegration.createFactory(application, appId, apiKey, swrveConfig)
+                          .build();
 ```
 
 ## Install Specific Version of Swrve SDK
