@@ -1,6 +1,5 @@
 package com.swrve.segment;
 
-import android.app.Activity;
 import android.app.Application;
 import com.swrve.sdk.config.SwrveConfig;
 import com.swrve.sdk.SwrveHelper;
@@ -73,20 +72,6 @@ public class SwrveIntegration extends Integration<Void> {
     String eventName = String.format("screen.%s", screen.event());
     SwrveSDK.event(eventName, screen.properties().toStringMap());
     logger.verbose("SwrveSDK.event(%s, %s)", eventName, screen.properties().toStringMap());
-  }
-
-  @Override
-  public void onActivityResumed(Activity activity) {
-    super.onActivityResumed(activity);
-    SwrveSDK.onResume(activity);
-    logger.verbose("SwrveSDK.onResume(%s)", activity);
-  }
-
-  @Override
-  public void onActivityPaused(Activity activity) {
-    super.onActivityPaused(activity);
-    SwrveSDK.onPause();
-    logger.verbose("SwrveSDK.onPause();");
   }
 
   @Override
