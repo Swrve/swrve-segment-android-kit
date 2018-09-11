@@ -14,6 +14,7 @@ import com.segment.analytics.integrations.ScreenPayload;
 import com.segment.analytics.integrations.TrackPayload;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class SwrveIntegration extends Integration<Void> {
   private static final String SWRVE_KEY = "Swrve";
@@ -65,15 +66,16 @@ public class SwrveIntegration extends Integration<Void> {
     super.track(track);
     Map<String, String> payload = new HashMap<>();
     for (String key : track.properties().keySet()) {
-      Object value = track.properties().get(key)
-      if (value instanceof Map) {
-        for (String subKey : value.keySet()) {
+      Object value = track.properties().get(key);
+      Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
+      if (valueMap != null) {
+        for (String subKey : valueMap.keySet()) {
           String newKey = key + "." + subKey;
-          String newValue = value.get(subKey).toString()
-          payload.put(newKey, newValue)
+          String newValue = valueMap.get(subKey).toString();
+          payload.put(newKey, newValue);
         }
       } else {
-        payload.put(key,value.toString())
+        payload.put(key,value.toString());
       }
     }
     SwrveSDK.event(track.event(), payload);
