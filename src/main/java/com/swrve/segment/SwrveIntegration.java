@@ -14,7 +14,6 @@ import com.segment.analytics.integrations.ScreenPayload;
 import com.segment.analytics.integrations.TrackPayload;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class SwrveIntegration extends Integration<Void> {
   private static final String SWRVE_KEY = "Swrve";
