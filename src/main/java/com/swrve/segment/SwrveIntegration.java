@@ -63,8 +63,22 @@ public class SwrveIntegration extends Integration<Void> {
   @Override
   public void track(TrackPayload track) {
     super.track(track);
-    SwrveSDK.event(track.event(), track.properties().toStringMap());
-    logger.verbose("SwrveSDK.event(%s, %s)", track.event(), track.properties().toStringMap());
+    Map<String, String> payload = new HashMap<>();
+    for (String key : track.properties().keySet()) {
+      Object value = track.properties().get(key);
+      Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
+      if (valueMap != null) {
+        for (String subKey : valueMap.keySet()) {
+          String newKey = key + "." + subKey;
+          String newValue = valueMap.get(subKey).toString();
+          payload.put(newKey, newValue);
+        }
+      } else {
+        payload.put(key,value.toString());
+      }
+    }
+    SwrveSDK.event(track.event(), payload);
+    logger.verbose("SwrveSDK.event(%s, %s)", track.event(), payload);
   }
 
   @Override
