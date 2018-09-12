@@ -47,7 +47,7 @@ SwrveConfig swrveConfig = new SwrveConfig();
 // swrveConfig.setSelectedStack(SwrveStack.EU);
 
 Analytics analytics = new Analytics.Builder(this, "write_key")
-                          .use(SwrveIntegration.createFactory(application, appId, apiKey, swrveConfig)
+                          .use(SwrveIntegration.createFactory(application, appId, apiKey, swrveConfig))
                           .build();
 ```
 
