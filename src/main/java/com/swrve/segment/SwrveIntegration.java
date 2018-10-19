@@ -60,23 +60,29 @@ public class SwrveIntegration extends Integration<Void> {
     logger.verbose("SwrveSDK.userUpdate(%s);", identify.traits().toStringMap());
   }
 
+  public Map<String,String> flatten(Map<String,Object> properties) {
+    Map<String, String> payload = new HashMap<>();
+    for (String key: properties.keySet()) {
+      Object value = properties.get(key);
+      Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
+      if (valueMap != null) {
+        Map<String, String> flat_map = flatten(valueMap);
+        for (String newKey: flat_map.keySet()) {
+          if (flat_map.get(newKey) != null) {
+            payload.put(newKey, flat_map.get(newKey).toString());
+          }
+        }
+      } else {
+        payload.put(key, value.toString());
+      }
+    }
+    return payload;
+  }
+
   @Override
   public void track(TrackPayload track) {
     super.track(track);
-    Map<String, String> payload = new HashMap<>();
-    for (String key : track.properties().keySet()) {
-      Object value = track.properties().get(key);
-      Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
-      if (valueMap != null) {
-        for (String subKey : valueMap.keySet()) {
-          String newKey = key + "." + subKey;
-          String newValue = valueMap.get(subKey).toString();
-          payload.put(newKey, newValue);
-        }
-      } else {
-        payload.put(key,value.toString());
-      }
-    }
+    Map<String, String> payload = flatten(track.properties());
     SwrveSDK.event(track.event(), payload);
     logger.verbose("SwrveSDK.event(%s, %s)", track.event(), payload);
   }
