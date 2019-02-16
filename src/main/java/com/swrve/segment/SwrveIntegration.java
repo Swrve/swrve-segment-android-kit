@@ -4,6 +4,7 @@ import android.app.Application;
 import com.swrve.sdk.config.SwrveConfig;
 import com.swrve.sdk.SwrveHelper;
 import com.swrve.sdk.SwrveSDK;
+import com.swrve.sdk.SwrveIdentityResponse;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.Traits;
 import com.segment.analytics.ValueMap;
@@ -46,6 +47,29 @@ public class SwrveIntegration extends Integration<Void> {
   @Override
   public void identify(IdentifyPayload identify) {
     super.identify(identify);
+    Map<String, String> payload = new HashMap<>();
+    if (identify.traits().containsKey("swrve_external_id")) {
+      final String external_id = identify.traits().get("swrve_external_id").toString();
+      SwrveSDK.identify(external_id, new SwrveIdentityResponse() {
+        @Override
+        public void onSuccess(String status, String swrveId) {
+            // Success, continue with your logic
+          logger.verbose("Successfully identified swrve_user_id %s with external_id %s", swrveId, external_id);
+        }
+ 
+        @Override
+        public void onError(int responseCode, String errorMessage) {
+            // Error should be handled.
+          logger.verbose("Swrve identification failed with error code %d: %s", responseCode, errorMessage);
+        }
+      });
+    }
+
+    for (String key : identify.traits().keySet() ) {
+      if (key!="swrve_external_id") {
+        payload.put(key, identify.traits().get(key).toString());
+      }
+    }
 
     String userId = identify.userId();
     if (SwrveHelper.isNotNullOrEmpty(userId)) {
@@ -56,8 +80,8 @@ public class SwrveIntegration extends Integration<Void> {
       logger.verbose("SwrveSDK.userUpdate(%s)", attributes);
     }
 
-    SwrveSDK.userUpdate(identify.traits().toStringMap());
-    logger.verbose("SwrveSDK.userUpdate(%s);", identify.traits().toStringMap());
+    SwrveSDK.userUpdate(payload);
+    logger.verbose("SwrveSDK.userUpdate(%s);", payload.toString());
   }
 
   public Map<String,String> flatten(Map<String,Object> properties) {
