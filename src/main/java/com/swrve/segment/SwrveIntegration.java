@@ -66,7 +66,7 @@ public class SwrveIntegration extends Integration<Void> {
     }
 
     for (String key : identify.traits().keySet() ) {
-      if (key!="swrve_external_id") {
+      if (!key.equals("swrve_external_id")) {
         payload.put(key, identify.traits().get(key).toString());
       }
     }
