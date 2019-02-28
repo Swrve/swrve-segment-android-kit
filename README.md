@@ -23,7 +23,7 @@ To install the Segment-Swrve integration, simply add this line to your gradle fi
 ```
 dependencies {
     compile 'com.segment.analytics.android:analytics:4.0.4'
-    compile 'com.swrve.segment:analytics-android-integration-swrve:1.1.2'
+    compile 'com.swrve.segment:analytics-android-integration-swrve:2.0.0'
 }
 ```
 
@@ -51,6 +51,15 @@ Analytics analytics = new Analytics.Builder(this, "write_key")
                           .build();
 ```
 
+## Identity
+
+In order to use Swrve's [identity functionality](https://docs.swrve.com/developer-documentation/integration/android/#User_identity), you must use Segment's `identify` method with the key `swrve_external_id` in the traits dictionary. This is deliberately separate from the Segment user id, since Swrve does not allow the use of email or other PII as an external identifier.
+
+Identifying in Swrve:
+```
+Analytics.with(this).identify("SEGMENT_USER_ID", new Traits().putValue("swrve_external_id","EXTERNAL_USER_ID") );
+```
+
 ## Install Specific Version of Swrve SDK
 
 By default this integration pulls in the latest vanilla version of the Swrve SDK. If you rather want to use a specific version, simply exclude them from the integration and specify the required versions in your `build.gradle` file directly.
@@ -58,10 +67,10 @@ By default this integration pulls in the latest vanilla version of the Swrve SDK
 For example, if you wanted to use the Firebase flavored Swrve SDK:
 
 ```
-compile('com.swrve.segment:analytics-android-integration-swrve:1.1.2') {
+compile('com.swrve.segment:analytics-android-integration-swrve:2.0.0') {
     exclude group: 'com.swrve.sdk.android', module: 'swrve'
 }
-compile 'com.swrve.sdk.android:swrve-firebase:5.3.0'
+compile 'com.swrve.sdk.android:swrve-firebase:6.0.2'
 ```
 
 License
