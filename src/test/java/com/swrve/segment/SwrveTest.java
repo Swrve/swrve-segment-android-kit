@@ -6,6 +6,7 @@ import com.segment.analytics.core.tests.BuildConfig;
 import com.segment.analytics.integrations.Logger;
 import com.segment.analytics.test.IdentifyPayloadBuilder;
 import com.segment.analytics.test.TrackPayloadBuilder;
+import com.swrve.sdk.SwrveLogger;
 import com.swrve.sdk.SwrveSDK;
 import com.swrve.sdk.SwrveSDKBase;
 
@@ -20,6 +21,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowLog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +31,11 @@ import static com.segment.analytics.Utils.createTraits;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
+import android.util.Log;
+
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 18, manifest = Config.NONE)
-@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
+@Config(sdk = 18, manifest = Config.NONE)
+@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*" })
 @PrepareForTest({ SwrveSDK.class })
 
 public class SwrveTest {
@@ -43,6 +47,8 @@ public class SwrveTest {
 
   @Before
   public void setUp() {
+    SwrveLogger.setLogLevel(Log.VERBOSE);
+    ShadowLog.stream = System.out;
     initMocks(this);
     PowerMockito.mockStatic(SwrveSDKBase.class);
 
@@ -66,5 +72,14 @@ public class SwrveTest {
 
     verifyStatic();
     SwrveSDK.event("foo", properties.toStringMap());
+  }
+
+  @Test
+  public void payloads() {
+    Properties properties = new Properties().putValue("null-value", null).putValue("included-value", "non-null");
+    integration.track(new TrackPayloadBuilder().event("foo").properties(properties).build());
+
+    verifyStatic();
+    SwrveSDK.event("foo", new Properties().putValue("included-value", "non-null").toStringMap());
   }
 }
