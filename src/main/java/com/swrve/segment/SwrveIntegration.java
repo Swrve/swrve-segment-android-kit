@@ -88,16 +88,18 @@ public class SwrveIntegration extends Integration<Void> {
     Map<String, String> payload = new HashMap<>();
     for (String key: properties.keySet()) {
       Object value = properties.get(key);
-      Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
-      if (valueMap != null) {
-        Map<String, String> flat_map = flatten(valueMap);
-        for (String newKey: flat_map.keySet()) {
-          if (flat_map.get(newKey) != null) {
-            payload.put(newKey, flat_map.get(newKey).toString());
+      if(value != null){ // drop null-valued properties
+        Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
+        if (valueMap != null) {
+          Map<String, String> flat_map = flatten(valueMap);
+          for (String newKey: flat_map.keySet()) {
+            if (flat_map.get(newKey) != null) {
+              payload.put(newKey, flat_map.get(newKey).toString());
+            }
           }
+        } else {
+          payload.put(key, value.toString());
         }
-      } else {
-        payload.put(key, value.toString());
       }
     }
     return payload;
