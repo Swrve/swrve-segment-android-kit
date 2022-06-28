@@ -94,7 +94,9 @@ public class SwrveIntegration extends Integration<Void> {
     Map<String, String> payload = new HashMap<>();
     for (String key: properties.keySet()) {
       Object value = properties.get(key);
-      if(value != null){ // drop null-valued properties
+      if(value == null) { // drop null-valued properties
+        SwrveLogger.e("Dropping null value from TrackPayload properties.");
+      } else {
         Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
         if (valueMap != null) {
           Map<String, String> flat_map = flatten(valueMap);
