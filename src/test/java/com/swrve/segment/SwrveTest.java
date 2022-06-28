@@ -30,8 +30,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 18, manifest = Config.NONE)
-@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*" })
+@Config(sdk = 18, manifest = Config.NONE)
+@PowerMockIgnore({ "org.mockito.*", "org.robolectric.*", "android.*", "androidx.*" })
 @PrepareForTest({ SwrveSDK.class })
 
 public class SwrveTest {
