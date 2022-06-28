@@ -67,4 +67,13 @@ public class SwrveTest {
     verifyStatic();
     SwrveSDK.event("foo", properties.toStringMap());
   }
+
+  @Test
+  public void payloads() {
+    Properties properties = new Properties().putValue("null-value", null).putValue("included-value", "non-null");
+    integration.track(new TrackPayloadBuilder().event("foo").properties(properties).build());
+
+    verifyStatic();
+    SwrveSDK.event("foo", new Properties().putValue("included-value", "non-null").toStringMap());
+  }
 }
