@@ -1,6 +1,8 @@
 package com.swrve.segment;
 
 import android.app.Application;
+
+import com.swrve.sdk.SwrveLogger;
 import com.swrve.sdk.config.SwrveConfig;
 import com.swrve.sdk.SwrveHelper;
 import com.swrve.sdk.SwrveSDK;
@@ -46,49 +48,55 @@ public class SwrveIntegration extends Integration<Void> {
 
   @Override
   public void identify(IdentifyPayload identify) {
-    super.identify(identify);
-    Map<String, String> payload = new HashMap<>();
-    if (identify.traits().containsKey("swrve_external_id")) {
-      final String external_id = identify.traits().get("swrve_external_id").toString();
-      SwrveSDK.identify(external_id, new SwrveIdentityResponse() {
-        @Override
-        public void onSuccess(String status, String swrveId) {
+    try {
+      super.identify(identify);
+      Map<String, String> payload = new HashMap<>();
+      if (identify.traits().containsKey("swrve_external_id")) {
+        final String external_id = identify.traits().get("swrve_external_id").toString();
+        SwrveSDK.identify(external_id, new SwrveIdentityResponse() {
+          @Override
+          public void onSuccess(String status, String swrveId) {
             // Success, continue with your logic
-          logger.verbose("Successfully identified swrve_user_id %s with external_id %s", swrveId, external_id);
-        }
- 
-        @Override
-        public void onError(int responseCode, String errorMessage) {
+            logger.verbose("Successfully identified swrve_user_id %s with external_id %s", swrveId, external_id);
+          }
+
+          @Override
+          public void onError(int responseCode, String errorMessage) {
             // Error should be handled.
-          logger.verbose("Swrve identification failed with error code %d: %s", responseCode, errorMessage);
-        }
-      });
-    }
-
-    for (String key : identify.traits().keySet() ) {
-      if (!key.equals("swrve_external_id")) {
-        payload.put(key, identify.traits().get(key).toString());
+            logger.verbose("Swrve identification failed with error code %d: %s", responseCode, errorMessage);
+          }
+        });
       }
+
+      for (String key : identify.traits().keySet() ) {
+        if (!key.equals("swrve_external_id")) {
+          payload.put(key, identify.traits().get(key).toString());
+        }
+      }
+
+      String userId = identify.userId();
+      if (SwrveHelper.isNotNullOrEmpty(userId)) {
+        Map<String, String> attributes = new HashMap<>();
+
+        attributes.put("customer.id", userId);
+        SwrveSDK.userUpdate(attributes);
+        logger.verbose("SwrveSDK.userUpdate(%s)", attributes);
+      }
+
+      SwrveSDK.userUpdate(payload);
+      logger.verbose("SwrveSDK.userUpdate(%s);", payload.toString());
+    } catch (Exception e) {
+      SwrveLogger.e("Exception in identify api.", e);
     }
-
-    String userId = identify.userId();
-    if (SwrveHelper.isNotNullOrEmpty(userId)) {
-      Map<String, String> attributes = new HashMap<>();
-
-      attributes.put("customer.id", userId);
-      SwrveSDK.userUpdate(attributes);
-      logger.verbose("SwrveSDK.userUpdate(%s)", attributes);
-    }
-
-    SwrveSDK.userUpdate(payload);
-    logger.verbose("SwrveSDK.userUpdate(%s);", payload.toString());
   }
 
-  public Map<String,String> flatten(Map<String,Object> properties) {
+  private Map<String,String> flatten(Map<String,Object> properties) {
     Map<String, String> payload = new HashMap<>();
     for (String key: properties.keySet()) {
       Object value = properties.get(key);
-      if(value != null){ // drop null-valued properties
+      if(value == null) { // drop null-valued properties
+        SwrveLogger.e("Dropping null value from TrackPayload property:%s", key);
+      } else {
         Map<String, Object> valueMap = (value instanceof Map) ? (Map) value : null;
         if (valueMap != null) {
           Map<String, String> flat_map = flatten(valueMap);
@@ -107,23 +115,35 @@ public class SwrveIntegration extends Integration<Void> {
 
   @Override
   public void track(TrackPayload track) {
-    super.track(track);
-    Map<String, String> payload = flatten(track.properties());
-    SwrveSDK.event(track.event(), payload);
-    logger.verbose("SwrveSDK.event(%s, %s)", track.event(), payload);
+    try {
+      super.track(track);
+      Map<String, String> payload = flatten(track.properties());
+      SwrveSDK.event(track.event(), payload);
+      logger.verbose("SwrveSDK.event(%s, %s)", track.event(), payload);
+    } catch (Exception e) {
+      SwrveLogger.e("Exception in track api.", e);
+    }
   }
 
   @Override
   public void screen(ScreenPayload screen) {
-    String eventName = String.format("screen.%s", screen.event());
-    SwrveSDK.event(eventName, screen.properties().toStringMap());
-    logger.verbose("SwrveSDK.event(%s, %s)", eventName, screen.properties().toStringMap());
+    try {
+      String eventName = String.format("screen.%s", screen.event());
+      SwrveSDK.event(eventName, screen.properties().toStringMap());
+      logger.verbose("SwrveSDK.event(%s, %s)", eventName, screen.properties().toStringMap());
+    } catch (Exception e) {
+      SwrveLogger.e("Exception in screen api.", e);
+    }
   }
 
   @Override
   public void flush() {
-    super.flush();
-    SwrveSDK.sendQueuedEvents();
-    logger.verbose("SwrveSDK.sendQueuedEvents();");
+    try {
+      super.flush();
+      SwrveSDK.sendQueuedEvents();
+      logger.verbose("SwrveSDK.sendQueuedEvents();");
+    } catch (Exception e) {
+      SwrveLogger.e("Exception in flush api.", e);
+    }
   }
 }
