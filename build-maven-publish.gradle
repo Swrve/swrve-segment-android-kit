@@ -46,15 +46,11 @@ if (System.getenv('GPG_KEY_ID') != null) {
 publishing {
     repositories {
         maven {
-            if (System.getenv('PUBLISH_TO_SONATYPE') != null) {
-                url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
-                name = "sonatype"
-                credentials {
-                    username System.getenv('SONATYPE_USER')
-                    password System.getenv('SONATYPE_PASSWORD')
-                }
-            } else {
-                url "$buildDir/../publish" // publish directory
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            name = "sonatype"
+            credentials {
+                username System.getenv('SONATYPE_USER')
+                password System.getenv('SONATYPE_PASSWORD')
             }
         }
     }
