@@ -9,9 +9,6 @@ In your top-level project `build.gradle` add:
 
 ```
 repositories {
-    jcenter{
-        url = 'http://dl.bintray.com/swrve-inc/android'
-    }
     maven {
         url = 'https://maven.google.com'
     }
@@ -22,8 +19,8 @@ To install the Segment-Swrve integration, simply add this line to your gradle fi
 
 ```
 dependencies {
-    compile 'com.segment.analytics.android:analytics:4.0.4'
-    compile 'com.swrve.segment:analytics-android-integration-swrve:2.0.0'
+    compile 'com.segment.analytics.android:analytics:4.10.4'
+    compile 'com.swrve.segment:analytics-android-integration-swrve:3.0.0'
 }
 ```
 
@@ -34,6 +31,7 @@ After adding the dependency, you must register the integration with our SDK.  To
 
 ```
 import com.swrve.segment.SwrveIntegration;
+import com.swrve.sdk.config.SwrveConfig;
 ```
 
 And add the following line:
